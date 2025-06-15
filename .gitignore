@@ -1,4 +1,3 @@
-thermal_app/build/
-thermal_app/.vscode/
-build/
-.vscode/
+.pio/build/
+.pio/libdeps/
+.vscode
