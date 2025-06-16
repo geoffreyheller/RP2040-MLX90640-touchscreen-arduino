@@ -33,8 +33,8 @@
 
 #define TA_SHIFT 8 //Default shift for MLX90640 in open air
 #define MLX_VDD  11
-#define MLX_SDA  12
-#define MLX_SCL  13
+#define MLX_SDA  4
+#define MLX_SCL  5
 
 #define TOUCH_SDA 2
 #define TOUCH_SCL 3
@@ -47,9 +47,9 @@
 #define SCREEN_ROTATION 1
 #define CURSOR_SIZE 2
 
-// #define DRAW_BLOCKS // 使用方块来绘制热力图
-// #define DRAW_PIXELS  // 使用像素来绘制
-#define DRAW_PIXELS_DMA  // 使用DMA来绘制
+//#define DRAW_BLOCKS // 使用方块来绘制热力图
+#define DRAW_PIXELS  // 使用像素来绘制
+//#define DRAW_PIXELS_DMA  // 使用DMA来绘制
 
 #define KALMAN  // 使用 卡尔曼滤波器
 // #define SERIAL1_DEBUG  
@@ -684,6 +684,9 @@ void setup(void)
 
    
    for(;power_on==true;){
+      tft.setCursor(25, 25);
+      tft.printf("FOOBAR");
+
       if (BOOTSEL){  // 长按btn1的关机功能
          if (millis() - btn1_pushed_start_time >= BTN_LONG_PUSH_T){
          power_off();
