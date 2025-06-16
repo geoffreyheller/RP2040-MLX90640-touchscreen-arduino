@@ -32,7 +32,7 @@
 #include "BilinearInterpolation.h"
 
 #define TA_SHIFT 8 //Default shift for MLX90640 in open air
-#define MLX_VDD  11
+#define MLX_VDD  -1
 #define MLX_SDA  4
 #define MLX_SCL  5
 
@@ -41,8 +41,8 @@
 #define TOUCH_RST -1
 
 #define BAT_ADC  26
-#define SCREEN_BL_PIN 4
-#define SCREEN_VDD 5
+#define SCREEN_BL_PIN -1
+#define SCREEN_VDD -1
 
 #define SCREEN_ROTATION 1
 #define CURSOR_SIZE 2
@@ -53,6 +53,9 @@
 
 #define KALMAN  // 使用 卡尔曼滤波器
 // #define SERIAL1_DEBUG  
+
+#define WIDTH_PIXELS 480
+#define HEIGHT_PIXELS 320
 
 
 #if defined(KALMAN)
@@ -229,7 +232,7 @@ void draw_heat_image(bool re_mapcolor=true){
    for (int j = 0; j < 32; j++){
       if (re_mapcolor) {mlx90640To_buffer[i*32 + j] = 180.0 * (mlx90640To_buffer[i*32 + j] - T_min) / (T_max - T_min);}
       getColour(mlx90640To_buffer[i*32 + j]);
-      tft.fillRect(280 - j * _SCALE, (240 - _SCALE * 24) + i * _SCALE, _SCALE, _SCALE, tft.color565(R_colour, G_colour, B_colour));  
+      tft.fillRect(HEIGHT_PIXELS - j * _SCALE, (WIDTH_PIXELS - _SCALE * 24) + i * _SCALE, _SCALE, _SCALE, tft.color565(R_colour, G_colour, B_colour));  
       // tft.drawBitmap();
       }
    }
@@ -330,7 +333,7 @@ void draw_heat_image(bool re_mapcolor=true){
       for (int j = 0; j < 32; j++){
          // if (re_mapcolor) {mlx90640To_buffer[i*32 + j] = 180.0 * (mlx90640To_buffer[i*32 + j] - T_min) / (T_max - T_min);}
          getColour(mlx90640To_buffer[i*32 + j]);
-         tft.fillRect(280 - j * _SCALE, (240 - _SCALE * 24) + i * _SCALE, _SCALE, _SCALE, tft.color565(R_colour, G_colour, B_colour));  
+         tft.fillRect(HEIGHT_PIXELS - j * _SCALE, (WIDTH_PIXELS - _SCALE * 24) + i * _SCALE, _SCALE, _SCALE, tft.color565(R_colour, G_colour, B_colour));  
       }
       }
    }
@@ -341,8 +344,8 @@ void draw_heat_image(bool re_mapcolor=true){
 int status;
 uint16_t eeMLX90640[832];
 int mlx_setup(){
-   pinMode(MLX_VDD, OUTPUT);
-   digitalWrite(MLX_VDD, LOW);
+   // pinMode(MLX_VDD, OUTPUT);
+   // digitalWrite(MLX_VDD, LOW);
    Wire.setSDA(MLX_SDA);
    Wire.setSCL(MLX_SCL);
    Wire.begin(); 
@@ -454,16 +457,16 @@ void task_mlx(void * ptr){
 void power_off(){
 
 //    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
-   for(int i=brightness; i>0; i--){
-      analogWrite(SCREEN_BL_PIN, i);
-      vTaskDelay(2);
-   }
+   // for(int i=brightness; i>0; i--){
+   //    analogWrite(SCREEN_BL_PIN, i);
+   //    vTaskDelay(2);
+   // }
    
    power_on = false;
-   digitalWrite(MLX_VDD, HIGH);
-   analogWrite(SCREEN_BL_PIN, 0);
-   digitalWrite(SCREEN_BL_PIN, LOW);
-   vTaskDelay(2000);
+   // digitalWrite(MLX_VDD, HIGH);
+   // analogWrite(SCREEN_BL_PIN, 0);
+   // digitalWrite(SCREEN_BL_PIN, LOW);
+   // vTaskDelay(2000);
    
    xosc_dormant();
 //    sleep_run_from_xosc();
@@ -474,23 +477,23 @@ void power_off(){
 
 // 背光调节,会限制输入亮度在正确范围内
 void set_brightness(int _brightness){
-   if (_brightness < 255 && _brightness > 5){
-      analogWriteFreq(10000);
-      analogWrite(SCREEN_BL_PIN, _brightness);
-      brightness = _brightness;
-   }else if(_brightness >= 255){analogWrite(SCREEN_BL_PIN, 255); brightness=255;
-   }else if(_brightness <= 5)   {analogWrite(SCREEN_BL_PIN, 5); brightness=5;
-   }
+//    if (_brightness < 255 && _brightness > 5){
+//       analogWriteFreq(10000);
+//       analogWrite(SCREEN_BL_PIN, _brightness);
+//       brightness = _brightness;
+//    }else if(_brightness >= 255){analogWrite(SCREEN_BL_PIN, 255); brightness=255;
+//    }else if(_brightness <= 5)   {analogWrite(SCREEN_BL_PIN, 5); brightness=5;
+//    }
 }
 
 void smooth_on(){
-   pinMode(SCREEN_BL_PIN, OUTPUT);
-   analogWrite(SCREEN_BL_PIN, 0);
-   analogWriteFreq(10000);
-   for(int i=0; i<brightness; i++){
-      analogWrite(SCREEN_BL_PIN, i);
-      vTaskDelay(2);
-   }
+//    pinMode(SCREEN_BL_PIN, OUTPUT);
+//    analogWrite(SCREEN_BL_PIN, 0);
+//    analogWriteFreq(10000);
+//    for(int i=0; i<brightness; i++){
+//       analogWrite(SCREEN_BL_PIN, i);
+//       vTaskDelay(2);
+//    }
 }
 
 // 平滑的开机
@@ -635,10 +638,10 @@ void setup1(void)
    touch.begin();
 //  mlx_setup();
    // 按钮启用
-   pinMode(SCREEN_BL_PIN, OUTPUT);
-   digitalWrite(SCREEN_BL_PIN, LOW);
-   pinMode(SCREEN_VDD, OUTPUT);
-   digitalWrite(SCREEN_VDD, LOW);
+   // pinMode(SCREEN_BL_PIN, OUTPUT);
+   // digitalWrite(SCREEN_BL_PIN, LOW);
+   // pinMode(SCREEN_VDD, OUTPUT);
+   // digitalWrite(SCREEN_VDD, LOW);
    // xTaskCreate(task_mlx, "MLX_FLASHING", 1024 * 4, NULL, 1, NULL);
 //  xTaskCreate(task_bat, "BAT_MANAGER", 1024 * 2, NULL, 3, NULL);
    tft.init();
@@ -646,7 +649,7 @@ void setup1(void)
    tft.initDMA();
    screen_setup();
    vTaskDelay(300);
-   smooth_on();
+   // smooth_on();
 }
 
 void loop1() 
@@ -684,9 +687,6 @@ void setup(void)
 
    
    for(;power_on==true;){
-      tft.setCursor(25, 25);
-      tft.printf("FOOBAR");
-
       if (BOOTSEL){  // 长按btn1的关机功能
          if (millis() - btn1_pushed_start_time >= BTN_LONG_PUSH_T){
          power_off();
@@ -750,7 +750,7 @@ void setup(void)
       if( touch.tp.touching )
       {
          x= touch.tp.y;
-         y = 240 - touch.tp.x;
+         y = WIDTH_PIXELS - touch.tp.x;
          if (touched==false){start_x = x;  start_y = y; diffy=0; diffx=0;}  // 下降沿
          if (millis() - touch_pushed_start_time >= TOUCH_LONG_PUSH_T){
             long_pushed = true;
